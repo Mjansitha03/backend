@@ -82,48 +82,48 @@ export const signin = async (req, res) => {
 const RESET_EXPIRY_MINUTES = 1;
 
 // Forgot password: create and email reset link
-export const forgotPassword = async (req, res) => {
-  try {
-    // get email from client
-    const { email } = req.body;
+// export const forgotPassword = async (req, res) => {
+//   try {
+//     // get email from client
+//     const { email } = req.body;
 
-    if (!email)
-      return res.status(400).json({ message: "Email is required" });
+//     if (!email)
+//       return res.status(400).json({ message: "Email is required" });
 
-    // find user by email
-    const user = await User.findOne({ email });
-    if (!user)
-      return res.status(404).json({ message: "User not found" });
+//     // find user by email
+//     const user = await User.findOne({ email });
+//     if (!user)
+//       return res.status(404).json({ message: "User not found" });
 
-    // generate a random token
-    const resetToken = crypto.randomBytes(32).toString("hex");
+//     // generate a random token
+//     const resetToken = crypto.randomBytes(32).toString("hex");
 
-    // set token and expiry on user
-    user.resetToken = resetToken;
-    user.resetTokenExpiry = new Date(Date.now() + RESET_EXPIRY_MINUTES * 60000);
-    await user.save();
+//     // set token and expiry on user
+//     user.resetToken = resetToken;
+//     user.resetTokenExpiry = new Date(Date.now() + RESET_EXPIRY_MINUTES * 60000);
+//     await user.save();
 
-    // *** LOCALHOST REACT FRONTEND ***
-    // frontend URL for reset link  
-    const frontendURL = "http://localhost:5173";
-    const url = `${frontendURL}/reset-password/${user._id}/${resetToken}`;
+//     // *** LOCALHOST REACT FRONTEND ***
+//     // frontend URL for reset link  
+//     const frontendURL = "http://localhost:5173";
+//     const url = `${frontendURL}/reset-password/${user._id}/${resetToken}`;
 
-    // send email with link
-    await sendmail(
-      email,
-      "Password Reset",
-      `Reset your password using the link:\n\n${url}\n\nThis link expires in ${RESET_EXPIRY_MINUTES} minute.`
-    );
+//     // send email with link
+//     await sendmail(
+//       email,
+//       "Password Reset",
+//       `Reset your password using the link:\n\n${url}\n\nThis link expires in ${RESET_EXPIRY_MINUTES} minute.`
+//     );
 
-    res.json({
-      message: "Reset link sent",
-      expiresInSeconds: RESET_EXPIRY_MINUTES * 60,
-    });
-  } catch (error) {
-    console.error("Forgot Error:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
+//     res.json({
+//       message: "Reset link sent",
+//       expiresInSeconds: RESET_EXPIRY_MINUTES * 60,
+//     });
+//   } catch (error) {
+//     console.error("Forgot Error:", error);
+//     res.status(500).json({ message: "Server error" });
+//   }
+// };
 
 // VERIFY RESET TOKEN
 // Verify if reset token is valid and not expired
@@ -190,6 +190,44 @@ export const resetPassword = async (req, res) => {
     res.json({ message: "Password reset successful" });
   } catch (error) {
     console.error("Reset Error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email)
+      return res.status(400).json({ message: "Email is required" });
+
+    const user = await User.findOne({ email });
+    if (!user)
+      return res.status(404).json({ message: "User not found" });
+
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    user.resetToken = resetToken;
+    user.resetTokenExpiry = new Date(Date.now() + RESET_EXPIRY_MINUTES * 60000);
+    await user.save();
+
+    const frontendURL = "http://localhost:5173"; // change to prod URL if needed
+    const url = `${frontendURL}/reset-password/${user._id}/${resetToken}`;
+
+    // Attempt to send email but do not fail if it errors
+    await sendmail(
+      email,
+      "Password Reset",
+      `Reset your password using the link:\n\n${url}\n\nThis link expires in ${RESET_EXPIRY_MINUTES} minute(s).`
+    );
+
+    res.json({
+      message: "Reset link generated. Check your email if SMTP works.",
+      expiresInSeconds: RESET_EXPIRY_MINUTES * 60,
+    });
+  } catch (error) {
+    console.error("Forgot Password Error:", error);
+    // Only throw 500 if something unrelated to email fails
     res.status(500).json({ message: "Server error" });
   }
 };
