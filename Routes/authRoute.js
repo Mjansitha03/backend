@@ -16,3 +16,5 @@ router.get("/verify-reset/:id/:token", verifyResetToken);
 router.post("/reset-password/:id/:token", resetPassword);
 
 export default router;
+
+
