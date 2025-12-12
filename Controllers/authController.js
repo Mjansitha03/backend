@@ -84,45 +84,52 @@ const RESET_EXPIRY_MINUTES = 1;
 // Forgot password: create and email reset link
 export const forgotPassword = async (req, res) => {
   try {
-    // get email from client
-    const { email } = req.body;
+    await sendmail(email, token);
+} catch (error) {
+    console.log("MAIL ERROR: ", error);
+    return res.status(500).json({ message: "Email sending failed", error: error.message });
+}
 
-    if (!email)
-      return res.status(400).json({ message: "Email is required" });
+  // try {
+  //   // get email from client
+  //   const { email } = req.body;
 
-    // find user by email
-    const user = await User.findOne({ email });
-    if (!user)
-      return res.status(404).json({ message: "User not found" });
+  //   if (!email)
+  //     return res.status(400).json({ message: "Email is required" });
 
-    // generate a random token
-    const resetToken = crypto.randomBytes(32).toString("hex");
+  //   // find user by email
+  //   const user = await User.findOne({ email });
+  //   if (!user)
+  //     return res.status(404).json({ message: "User not found" });
 
-    // set token and expiry on user
-    user.resetToken = resetToken;
-    user.resetTokenExpiry = new Date(Date.now() + RESET_EXPIRY_MINUTES * 60000);
-    await user.save();
+  //   // generate a random token
+  //   const resetToken = crypto.randomBytes(32).toString("hex");
 
-    // *** LOCALHOST REACT FRONTEND ***
-    // frontend URL for reset link
-    const frontendURL = "https://frontend-3tar.vercel.app/";
-    const url = `${frontendURL}/reset-password/${user._id}/${resetToken}`;
+  //   // set token and expiry on user
+  //   user.resetToken = resetToken;
+  //   user.resetTokenExpiry = new Date(Date.now() + RESET_EXPIRY_MINUTES * 60000);
+  //   await user.save();
 
-    // send email with link
-    await sendmail(
-      email,
-      "Password Reset",
-      `Reset your password using the link:\n\n${url}\n\nThis link expires in ${RESET_EXPIRY_MINUTES} minute.`
-    );
+  //   // *** LOCALHOST REACT FRONTEND ***
+  //   // frontend URL for reset link
+  //   const frontendURL = "https://frontend-3tar.vercel.app/";
+  //   const url = `${frontendURL}/reset-password/${user._id}/${resetToken}`;
 
-    res.json({
-      message: "Reset link sent",
-      expiresInSeconds: RESET_EXPIRY_MINUTES * 60,
-    });
-  } catch (error) {
-    console.error("Forgot Error:", error);
-    res.status(500).json({ message: "Server error" });
-  }
+  //   // send email with link
+  //   await sendmail(
+  //     email,
+  //     "Password Reset",
+  //     `Reset your password using the link:\n\n${url}\n\nThis link expires in ${RESET_EXPIRY_MINUTES} minute.`
+  //   );
+
+  //   res.json({
+  //     message: "Reset link sent",
+  //     expiresInSeconds: RESET_EXPIRY_MINUTES * 60,
+  //   });
+  // } catch (error) {
+  //   console.error("Forgot Error:", error);
+  //   res.status(500).json({ message: "Server error" });
+  // }
 };
 
 // VERIFY RESET TOKEN
