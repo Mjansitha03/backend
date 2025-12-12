@@ -2,13 +2,21 @@ import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 dotenv.config();
 
+
+const PASS_MAIL = process.env.PASS_MAIL; 
+const PASS_KEY = process.env.PASS_KEY;
+
+if (!PASS_MAIL || !PASS_KEY) {
+  console.warn(
+    "Warning: PASS_MAIL or PASS_KEY not set in .env. Emails will fail."
+  );
+}
+
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true, // required for Gmail
+ service: "gmail",
   auth: {
-    user: process.env.PASS_MAIL,
-    pass: process.env.PASS_KEY, // MUST be Gmail App Password
+    user: PASS_MAIL,
+    pass: PASS_KEY, 
   },
 });
 
@@ -16,14 +24,14 @@ const transporter = nodemailer.createTransport({
 const sendEmail = async (to, subject, text) => {
   try {
     await transporter.sendMail({
-      from: process.env.PASS_MAIL,
+      from: PASS_MAIL,
       to,
       subject,
       text,
     });
   } catch (err) {
     console.error("Email Error:", err);
-    throw new Error("Failed to send email");
+    throw new Error(err?.message || "Failed to send email");
   }
 };
 
