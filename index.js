@@ -11,10 +11,10 @@ const app = express();
 
 app.use(express.json());
 app.use(cors({
-  origin:"*",
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE","PATCH"]
+  origin: "http://localhost:5173",
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
 }));
+
 
 
 connectDB();

@@ -104,8 +104,8 @@ export const forgotPassword = async (req, res) => {
     await user.save();
 
     // *** LOCALHOST REACT FRONTEND ***
-    // frontend URL for reset link
-    const frontendURL = "https://frontend-eweh.vercel.app";
+    // frontend URL for reset link  
+    const frontendURL = "http://localhost:5173";
     const url = `${frontendURL}/reset-password/${user._id}/${resetToken}`;
 
     // send email with link
