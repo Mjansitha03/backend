@@ -10,12 +10,16 @@ dotenv.config();
 const app = express();
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: ["https://frontend-eweh.vercel.app"],
+  methods: ["GET","POST","PUT","DELETE"],
+}));
+
 
 connectDB();
 
 app.get("/", (req, res) =>{
-    res.send(`<h1 style="text-align:center">Welcome to the Auth API</h1>}`);
+    res.send(`<h1 style="text-align:center">Welcome to the Auth API</h1>`);
 });
 
 app.use("/api/auth", authRoute);
