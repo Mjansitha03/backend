@@ -1,28 +1,27 @@
-## Reset Password Flow - Backend
+## Reset Password Flow — Backend
 
-Simple Node.js backend for user authentication and password reset.
+Repository: https://github.com/Mjansitha03/backend.git
 
-This API supports:
+Simple Node.js + Express backend providing user auth and a password reset flow.
+
+Features:
 - Sign up and sign in
 - JWT-based authentication
-- Password reset via email with token + expiry
+- Password reset via email (token + expiry)
 - MongoDB (Mongoose) data store
 
-
-## Tech Stack
-
+Tech stack:
 - Node.js, Express
 - MongoDB, Mongoose
-- JWT, bcrypt, nodemailer
+- JWT, bcrypt, Nodemailer
 - dotenv for configuration
 
-
-## Repository Layout (backend)
+Folder structure (backend):
 
 ```
 backend/
 ├─ Controllers/
-│  └─ authController.js      # signup, signin, forgot/reset 
+│  └─ authController.js      # signup, signin, forgot/reset
 ├─ Models/
 │  └─ userSchema.js          # user model
 ├─ Utils/
@@ -36,93 +35,98 @@ backend/
 └─ .env
 ```
 
----
-
-## Repository
-
-GitHub: https://github.com/<your-username>/Reset_Password_Flo
-
-
-## Quick Start
+Quick start
+------------
 
 Prerequisites:
-- Node.js (16+)
-- MongoDB or a connection string (Atlas or local)
+- Node.js (v16+)
+- MongoDB (local or Atlas)
 
 Install and run:
 
 ```bash
 cd backend
 npm install
-
 npm run dev
 ```
 
-The API defaults to http://localhost:3000 unless you override PORT in .env.
+By default, the server listens on `PORT` from `.env` (set to `3000` or your choice).
 
-
-## Environment Variables (.env)
-
-Create a `.env` file at the root of `backend/` with these keys:
+Environment variables (`.env` in backend/):
 
 ```
 PORT=3000
-MONGODB_URL=<your_mongo_connection_string>
+MONGODB_URL=<your_mongodb_connection_string>
 JWT_SECRET=<your_jwt_secret>
 PASS_MAIL=<your_gmail_email>
 PASS_KEY=<your_gmail_app_password>
 ```
 
 Notes:
-- Use Gmail App Passwords (not your main account password) for `PASS_KEY`.
-- Keep JWT_SECRET and DB credentials private.
+- Use Gmail App Passwords for `PASS_KEY` instead of your main account password.
+- Keep secrets private and don't commit `.env`.
 
+API endpoints (prefix `/api/auth` as mounted in index.js):
 
-## API Endpoints
-
-Auth routes (prefix `/auth`):
-
-- POST `/auth/sign-up` — Register a new user
+- POST `/api/auth/sign-up` — Register a user
 	- Body: { name, email, password }
-- POST `/auth/sign-in` — Login user
+- POST `/api/auth/sign-in` — Login and receive JWT
 	- Body: { email, password }
-- POST `/auth/forgot-password` — Send password reset link
+- POST `/api/auth/forgot-password` — Request a password reset link
 	- Body: { email }
-- POST `/auth/reset-password/:id/:token` — Reset password
+- GET `/api/auth/verify-reset/:id/:token` — Verify reset token validity
+- POST `/api/auth/reset-password/:id/:token` — Reset password
 	- Body: { password }
 
-All endpoints return JSON with `message` and relevant data or errors.
+Example cURL
+------------
 
+Create user:
+```bash
+curl -X POST http://localhost:3000/api/auth/sign-up \
+	-H "Content-Type: application/json" \
+	-d '{"name":"Jane","email":"jane@example.com","password":"pwd123"}'
+```
 
-## Reset Flow
+Request password reset:
+```bash
+curl -X POST http://localhost:3000/api/auth/forgot-password \
+	-H "Content-Type: application/json" \
+	-d '{"email":"jane@example.com"}'
+```
 
-1. User requests a password reset (`/auth/forgot-password`) with email.
-2. Server generates a random token and expiry, stores it on the user.
-3. Server sends email with a link: `/reset-password/:id/:token`.
-4. User opens link, frontend validates token (`/auth/verify-reset/:id/:token`) (provided by your frontend), and submits new password to `reset-password`.
+Reset password (after verifying link):
+```bash
+curl -X POST http://localhost:3000/api/auth/reset-password/<USER_ID>/<TOKEN> \
+	-H "Content-Type: application/json" \
+	-d '{"password":"newPassword"}'
+```
 
-Security notes:
-- Reset tokens are temporary and stored on the user record.
-- Reset links are short-lived (configurable via `RESET_EXPIRY_MINUTES`).
+How the reset flow works
+------------------------
+1. Client calls `/api/auth/forgot-password` with the user's email.
+2. Server generates a secure token and expiry, saves them to the user record.
+3. Server sends an email with a reset link: `http://<frontend>/reset-password/:id/:token`.
+4. Frontend verifies the token with `/api/auth/verify-reset/:id/:token`, then posts the new password to `/api/auth/reset-password/:id/:token`.
 
+Implementation notes
+--------------------
+- `RESET_EXPIRY_MINUTES` in `Controllers/authController.js` defines how long a reset link is valid.
+- `Utils/mailer.js` wraps Nodemailer and logs errors instead of throwing.
+- `Database/dbConfig.js` expects `MONGODB_URL` in `.env`.
 
-## Using the Code
+Troubleshooting
+---------------
+- Mails fail: verify `PASS_MAIL` and `PASS_KEY` (Gmail app password), and check that less secure app access isn't required for your account.
+- DB connection fails: verify `MONGODB_URL` and that your MongoDB instance is reachable.
 
-- `Controllers/authController.js` — main business logic.
-- `Utils/mailer.js` — uses Nodemailer to send reset emails.
-- `Models/userSchema.js` — user model contains fields for reset token and expiry.
-
-Add tests or Postman collection as needed.
-
-
-## Troubleshooting
-
-- If mails fail, confirm `PASS_MAIL` and `PASS_KEY` are valid and Gmail is configured for app passwords.
-- If DB fails, ensure `MONGODB_URL` is correct and reachable.
-
-
-## License
-
+License
+-------
 MIT
+
+Contributing
+------------
+Pull requests welcome. Please add tests and update the README if you change behavior.
+
 
 
