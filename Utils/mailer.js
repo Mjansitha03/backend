@@ -37,23 +37,54 @@ dotenv.config();
 // };
 
 
+// export const sendmail = async (to, subject, text) => {
+//   const transporter = nodemailer.createTransport({
+//     host: "smtp.gmail.com",
+//     port: 587,
+//     secure: false,
+//     auth: {
+//       user: process.env.FROM_EMAIL,
+//       pass: process.env.PASS_KEY,
+//     },
+//   });
+
+//   await transporter.sendMail({
+//     from: process.env.FROM_EMAIL,
+//     to,
+//     subject,
+//     text,
+//   });
+
+//   console.log("Mail sent successfully");
+// };
+
+
 export const sendmail = async (to, subject, text) => {
-  const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
-    auth: {
-      user: process.env.FROM_EMAIL,
-      pass: process.env.PASS_KEY,
-    },
-  });
+  try {
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
+      auth: {
+        user: process.env.FROM_EMAIL,
+        pass: process.env.PASS_KEY,
+      },
+    });
 
-  await transporter.sendMail({
-    from: process.env.FROM_EMAIL,
-    to,
-    subject,
-    text,
-  });
+    // VERY IMPORTANT: verify SMTP connection
+    await transporter.verify();
+    console.log("SMTP connection ready");
 
-  console.log("Mail sent successfully");
+    await transporter.sendMail({
+      from: process.env.FROM_EMAIL,
+      to,
+      subject,
+      text,
+    });
+
+    console.log("Mail sent successfully");
+  } catch (err) {
+    console.error("MAIL ERROR 👉", err.message);
+    throw err; // propagate to forgotPassword
+  }
 };
