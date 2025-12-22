@@ -13,7 +13,7 @@ const app = express();
 app.use(express.json());
 // allow frontend origin and common HTTP methods  
 app.use(cors({
-  origin: "https://frontend-bsnj.vercel.app",
+  origin: "https://frontend-3tar.vercel.app",
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
 }));
 

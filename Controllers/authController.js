@@ -102,7 +102,7 @@ export const forgotPassword = async (req, res) => {
     await user.save();
 
     // build reset link for the frontend app  
-    const frontendURL = "https://frontend-bsnj.vercel.app"; 
+    const frontendURL = "https://frontend-3tar.vercel.app"; 
     const url = `${frontendURL}/reset-password/${user._id}/${resetToken}`;
 
     // Attempt to send email - we don't want to crash on SMTP failure
