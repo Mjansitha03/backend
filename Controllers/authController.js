@@ -3,8 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import User from "../Models/userSchema.js";
-import sendmail from "../Utils/mailer.js";
-
+import {sendmail} from "../Utils/mailer.js"
 dotenv.config();
 
 
@@ -102,7 +101,7 @@ export const forgotPassword = async (req, res) => {
     user.resetTokenExpiry = new Date(Date.now() + RESET_EXPIRY_MINUTES * 60000);
     await user.save();
 
-    // build reset link for the frontend app
+    // build reset link for the frontend app  
     const frontendURL = "https://frontend-3tar.vercel.app"; 
     const url = `${frontendURL}/reset-password/${user._id}/${resetToken}`;
 

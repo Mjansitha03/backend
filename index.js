@@ -11,7 +11,7 @@ const app = express();
 
 // parse JSON bodies
 app.use(express.json());
-// allow frontend origin and common HTTP methods
+// allow frontend origin and common HTTP methods  
 app.use(cors({
   origin: "https://frontend-3tar.vercel.app",
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
