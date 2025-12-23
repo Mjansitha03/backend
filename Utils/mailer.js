@@ -5,16 +5,23 @@ dotenv.config();
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
+// Send an email using SendGrid
+
 export const sendEmail = async (to, subject, text) => {
   try {
-    await sgMail.send({
+    const response = await sgMail.send({
       to,
-      from: process.env.FROM_EMAIL, 
+      from: process.env.FROM_EMAIL,
       subject,
       text,
     });
-    console.log("Email sent successfully");
+
+    console.log(`Email sent successfully: ${response[0].headers.location}`);
   } catch (error) {
-    console.error(error.response?.body || error.message);
+    console.error(
+      `Error sending email: ${
+        error.response?.body?.errors[0].message || error.message
+      }`
+    );
   }
 };

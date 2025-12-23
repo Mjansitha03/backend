@@ -80,7 +80,7 @@ export const signin = async (req, res) => {
 
 // FORGOT PASSWORD
 // minutes the reset link stays valid
-const RESET_EXPIRY_MINUTES = 1;
+const RESET_EXPIRY_MINUTES = 2;
 
 // Forgot password: create and email reset link
 export const forgotPassword = async (req, res) => {
@@ -117,7 +117,7 @@ export const forgotPassword = async (req, res) => {
 
     // reply with success message and expiry seconds
     res.json({
-      message: "Reset link generated. Check your email if SMTP works.",
+      message: "Reset link generated successfully",
       expiresInSeconds: RESET_EXPIRY_MINUTES * 60,
     });
   } catch (error) {
